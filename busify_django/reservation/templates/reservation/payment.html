@@ -1,0 +1,16 @@
+<form action="/payment-success/" method="POST">
+    <script
+      src="https://checkout.razorpay.com/v1/checkout.js"
+      data-key="{{ razorpay_key }}"
+      data-amount="{{ payment.amount }}"
+      data-currency="INR"
+      data-order_id="{{ payment.id }}"
+      data-name="Busify"
+      data-description="Bus Ticket Booking"
+      data-prefill.name="{{ booking.user.profile.full_name }}"
+      data-prefill.email="{{ booking.user.email }}"
+      data-prefill.contact="{{ booking.user.profile.phone }}"
+    ></script>
+    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+  </form>
+  

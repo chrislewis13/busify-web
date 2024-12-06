@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Passenger Details Form</title>
+    <link rel="shortcut icon" href="./assets/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="./style.css">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        .form-section {
+            transition: all 0.3s ease-in-out;
+        }
+        .phone-input {
+            padding-left: 3rem !important;
+        }
+        .phone-prefix {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6B7280;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+
+
+
+    <!-- ------------------------navbar section starts here ----------------------- -->
+    <nav class="px-4 md:px-14 py-1 md:py-3 flex text-xs md:text-base font-normal items-center justify-between sticky top-0 bg-white z-20 drop-shadow-xl">
+
+        <!-- navbar left part stats here -->
+        <div class="flex gap-2 md:gap-16 items-center w-full justify-between md:w-auto md:justify-start">
+            <div class="flex items-center h-12">
+                <i class="bi bi-bus-front text-2xl text-red-600 mr-2"></i> <!-- Icon with consistent styling -->
+                <span class="text-2xl font-bold text-red-600">Busify</span> <!-- Text with matching style -->
+            </div>
+            <div class="h-6 w-[1px] bg-gray-200"></div>
+            <div class="flex gap-3">
+                <a href="{% url 'home' %}" class="flex flex-col items-center text-center gap-1 px-2 py-3 rounded-lg group hover:bg-gray-100 bg-main-color sm:bg-transparent">
+                    <i class="bi bi-bus-front text-white sm:text-black text-2xl group-hover:text-gray-700"></i>
+                    <p class="text-white sm:text-black group-hover:text-gray-700">Bus Tickets</p>
+                </a>
+            </div>
+        </div>
+        <!-- navbar left part ends here -->
+
+
+
+
+        <!-- navbar right part starts here  -->
+        <div class="hidden md:flex items-center gap-3">
+            <a class="flex items-center justify-center gap-2 h-10 px-2 rounded-lg hover:bg-gray-100" href="{% url 'help' %}">
+                <i class="fa-solid fa-headset text-[#4a4a4a] text-xl"></i>
+                <p>Help</p>
+            </a>
+            <a class="flex items-center justify-center gap-2 h-10 px-2 rounded-lg hover:bg-gray-100" href="{% url 'account' %}">
+                <i class="fa-regular fa-user text-[#4a4a4a] text-xl"></i>
+                <p>Account</p>
+                <i class="fa-solid text-[#4a4a4a] text-xl"></i>
+            </a>
+        </div>
+        <!-- navbar right part ends here  -->
+
+    </nav>
+
+
+    <div class="container mx-auto px-4 py-8">
+        <div class="flex flex-col lg:flex-row gap-6">
+            <!-- Left side - Passenger Form -->
+            <div class="flex-grow bg-white rounded-lg shadow-lg p-6 max-w-3xl">
+                <h1 class="text-2xl font-bold text-gray-800 mb-6">Passenger Details</h1>
+                <form id="bookingForm">
+                    {% csrf_token %}
+                    <div id="passengersContainer">
+                        <!-- Form sections will be here -->
+                        <input type="hidden" name="bus_id" value="{{ bus.id }}"> <!-- Bus ID -->
+                        <input type="hidden" name="travel_date" value="{{ travel_date }}">
+                    </div>
+
+                    <button type="button" id="addPassenger" class="flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 w-full md:w-auto">
+                        <i class="bi bi-plus-circle mr-2"></i> Add Another Passenger
+                    </button>
+                </form>
+            </div>
+
+            <!-- Right side - Payment Details -->
+            <div class="lg:w-96 bg-white rounded-lg shadow-lg p-6 h-fit">
+                <h2 class="text-xl font-bold text-gray-800 mb-6">Payment Details</h2>
+                <div class="space-y-4">
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Total Fare</span>
+                        <span class="font-medium">₹{{ base_fare }}</span>
+                    </div>
+                    <div class="flex justify-between border-t pt-4">
+                        <span class="font-bold">Total Amount</span>
+                        <span class="font-bold">₹{{ base_fare }}</span>
+                    </div>
+                    <button id="proceedToPay" type="button" class="flex items-center justify-center px-4 py-3 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 w-full">
+                        <i class="bi bi-credit-card mr-2"></i> Confirm Booking
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+             <!-- Footer -->
+             <footer class="bg-gray-100 pt-12 pb-6">
+                <div class="container mx-auto px-4">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+                        <div>
+                            <div class="text-2xl font-bold text-red-600 mb-4">
+                                <i class="bi bi-bus-front"></i> Busify
+                            </div>
+                            <p class="text-gray-600">Your modern bus booking platform</p>
+                        </div>
+                        <div>
+                            <h3 class="font-bold mb-4">Contact Us</h3>
+                            <p class="text-gray-600">Email: busifytravel@gmail.com</p>
+                            <p class="text-gray-600">Phone: +91 87670-65831</p>
+                        </div>
+                        <div>
+                            <h3 class="font-bold mb-4">Quick Links</h3>
+                            <ul class="text-gray-600">
+                                <li class="mb-2"><a href="#" class="hover:text-red-600">About Us</a></li>
+                                <li class="mb-2"><a href="#" class="hover:text-red-600">Terms & Conditions</a></li>
+                                <li class="mb-2"><a href="#" class="hover:text-red-600">Privacy Policy</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h3 class="font-bold mb-4">Follow Us</h3>
+                            <div class="flex space-x-4">
+                                <a href="#" class="text-gray-600 hover:text-red-600"><i class="bi bi-facebook"></i></a>
+                                <a href="#" class="text-gray-600 hover:text-red-600"><i class="bi bi-twitter"></i></a>
+                                <a href="#" class="text-gray-600 hover:text-red-600"><i class="bi bi-instagram"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-center text-gray-600 text-sm border-t pt-6">
+                        © 2024 Busify. All rights reserved.
+                    </div>
+                </div>
+            </footer>
+    
+
+    <script>
+        // Initialize with primary passenger
+        window.onload = function() {
+            addPrimaryPassenger();
+        }
+    
+        let passengerCount = 1;
+        const maxPassengers = 6;
+    
+        function addPrimaryPassenger() {
+            const primaryPassenger = document.createElement('div');
+            primaryPassenger.className = 'form-section p-4 border rounded-lg mb-4 bg-gray-50';
+            primaryPassenger.innerHTML = `
+                <h2 class="font-semibold text-lg mb-4">Primary Passenger</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Full Name</label>
+                        <input type="text" name="primary_full_name" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border">
+                    </div>
+                    <div class="relative">
+                        <label class="block text-sm font-medium text-gray-700">Phone</label>
+                        <div class="relative">
+                            <span class="phone-prefix">+91</span>
+                            <input type="tel" name="primary_phone" required pattern="[0-9]{10}" maxlength="10" class="phone-input mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Email</label>
+                        <input type="email" name="primary_email" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Age</label>
+                        <input type="number" name="primary_age" required min="1" max="120" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Gender</label>
+                        <select name="primary_gender" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border">
+                            <option value="">Select Gender</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Boarding Point</label>
+                        <select name="primary_boarding_point" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border">
+                            <option value="">Select Boarding Point</option>
+                            {% for point in boarding_points %}
+                                <option value="{{ point }}">{{ point }}</option>
+                            {% empty %}
+                                <option value="">No Boarding Points Available</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+    
+                    <!-- Drop-off Point Dropdown -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Drop-off Point</label>
+                        <select name="primary_dropoff_point" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border">
+                            <option value="">Select Drop-off Point</option>
+                            {% for point in dropoff_points %}
+                                <option value="{{ point }}">{{ point }}</option>
+                            {% empty %}
+                                <option value="">No Drop-off Points Available</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Meal Preference</label>
+                        <select name="primary_meal_preference" id="mealPreferencePrimary" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border">
+                            <option value="">No Meal</option>
+                            <option value="veg">Vegetarian (+ ₹200)</option>
+                            <option value="nonveg">Non-Vegetarian (+ ₹250)</option>
+                            <option value="jain">Jain (+ ₹200)</option>
+                        </select>
+                    </div>
+                </div>
+            `;
+            document.getElementById('passengersContainer').appendChild(primaryPassenger);
+        }
+    
+        document.getElementById('addPassenger').addEventListener('click', function() {
+            if (passengerCount >= maxPassengers) {
+                alert('Maximum 6 passengers allowed');
+                return;
+            }
+    
+            passengerCount++;
+            const newPassenger = document.createElement('div');
+            newPassenger.className = 'form-section p-4 border rounded-lg mb-4 bg-gray-50 relative';
+            newPassenger.innerHTML = `
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="font-semibold text-lg">Passenger ${passengerCount}</h2>
+                    <button type="button" class="remove-passenger text-red-600 hover:text-red-800">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Full Name</label>
+                        <input type="text" name="co_full_name" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Age</label>
+                        <input type="number" name="co_age" required min="1" max="120" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Gender</label>
+                        <select name="co_gender" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border">
+                            <option value="">Select Gender</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Boarding Point</label>
+                        <select name="co_boarding_point" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border">
+                            <option value="">Select Boarding Point</option>
+                            {% for point in boarding_points %}
+                                <option value="{{ point }}">{{ point }}</option>
+                            {% empty %}
+                                <option value="">No Boarding Points Available</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+    
+                    <!-- Drop-off Point Dropdown -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Drop-off Point</label>
+                        <select name="co_dropoff_point" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border">
+                            <option value="">Select Drop-off Point</option>
+                            {% for point in dropoff_points %}
+                                <option value="{{ point }}">{{ point }}</option>
+                            {% empty %}
+                                <option value="">No Drop-off Points Available</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Meal Preference</label>
+                        <select name="co_meal_preference" id="mealPreferenceCo" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border">
+                            <option value="">No Meal</option>
+                            <option value="veg">Vegetarian (+ ₹200)</option>
+                            <option value="nonveg">Non-Vegetarian (+ ₹250)</option>
+                            <option value="jain">Jain (+ ₹200)</option>
+                        </select>
+                    </div>
+                </div>
+            `;
+    
+            document.getElementById('passengersContainer').appendChild(newPassenger);
+        });
+    
+        document.getElementById('passengersContainer').addEventListener('click', function(e) {
+            if (e.target.classList.contains('bi-trash') || e.target.classList.contains('remove-passenger')) {
+                const section = e.target.closest('.form-section');
+                section.remove();
+                passengerCount--;
+                updatePassengerNumbers();
+            }
+        });
+    
+        function updatePassengerNumbers() {
+            const sections = document.querySelectorAll('.form-section h2');
+            sections.forEach((section, index) => {
+                if (index === 0) {
+                    section.textContent = 'Primary Passenger';
+                } else {
+                    section.textContent = `Passenger ${index + 1}`;
+                }
+            });
+        }
+    
+        document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('proceedToPay').addEventListener('click', function(e) {
+          e.preventDefault(); // Prevent normal form submission
+
+          // Explicitly select the form
+            const formElement = document.getElementById('bookingForm');    
+            const formData = new FormData(formElement);
+            
+            const data = {};
+            formData.forEach((value, key) => {
+                data[key] = value;
+            });
+            
+            const busId = "{{ bus.id }}";  // Pass the bus ID from Django template to JavaScript
+            console.log("Bus ID:", busId);
+    
+            // Calculate total price dynamically
+            let totalCost = 0;
+            const primaryMealPreference = data['primary_meal_preference'];
+            if (primaryMealPreference === 'veg') {
+                totalCost += 200;
+            } else if (primaryMealPreference === 'nonveg') {
+                totalCost += 250;
+            } else if (primaryMealPreference === 'jain') {
+                totalCost += 200;
+            }
+    
+            // Add co-passenger meal preferences to total cost
+            for (let i = 1; i <= passengerCount; i++) {
+                const mealPreference = data[`co_meal_preference`];
+                if (mealPreference === 'veg') {
+                    totalCost += 200;
+                } else if (mealPreference === 'nonveg') {
+                    totalCost += 250;
+                } else if (mealPreference === 'jain') {
+                    totalCost += 200;
+                }
+            }
+    
+            // Add the base cost of the bus and tax
+            const basePrice = {{ base_fare }}; // Replace with actual base price from Django context
+            totalCost += basePrice;
+            totalCost *= 1.18; // Add 18% tax
+    
+            // Send the data via AJAX
+            fetch('/create-booking/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCsrfToken()
+                },
+                body: JSON.stringify({ data, totalCost })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Booking created successfully!');
+                    window.location.href = '/'; // Redirect to home page
+                } else {
+                    alert('Something went wrong. Please try again.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    
+        function getCsrfToken() {
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            return csrfToken;
+        }
+
+        console.log(data);  // Add this to see the request data
+
+    });
+
+    </script>            
+</body>
+</html>

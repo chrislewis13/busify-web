@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Busify - User Profile</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen font-['Inter']">
+
+
+
+
+    <!-- Navigation -->
+    <nav class="bg-blue-600 text-white p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold">Busify Admin</h1>
+            <div class="flex items-center space-x-4">
+                <span>Welcome, Admin</span>
+                <button class="bg-blue-700 px-4 py-2 rounded hover:bg-blue-800">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+
+
+
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-4 py-8">
+        <!-- Stats Overview -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-white p-6 rounded-lg shadow">
+                <h3 class="text-gray-500 text-sm">Active Buses</h3>
+                <p class="text-3xl font-bold text-green-600">12</p>
+            </div>
+        </div>
+
+        <!-- Bookings Table -->
+        <div class="bg-white rounded-lg shadow overflow-x-auto">
+            <div class="p-6 border-b">
+                <h2 class="text-xl font-semibold">Recent Bookings</h2>
+            </div>
+            <table class="w-full min-w-max">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Booking ID</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Passenger Details</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact Info</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Travel Details</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200" id="bookingsTableBody">
+                    <!-- Bookings will be inserted here by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Booking Details Modal -->
+    <div id="bookingModal" class="modal">
+        <div class="fixed inset-0 flex items-center justify-center z-50">
+            <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto m-4">
+                <div class="p-6 border-b">
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-xl font-semibold">Booking Details</h2>
+                        <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="p-6" id="modalContent">
+                    <!-- Modal content will be inserted here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const bookings = [
+            {
+                bookingId: "BUS001",
+                passengerName: "John Doe",
+                phone: "+91 9876543210",
+                email: "john@example.com",
+                age: 28,
+                boardingPoint: "Mumbai Central",
+                dropPoint: "Pune Station",
+                seat: "A4",
+                ticketNo: "T123456",
+                status: "Confirmed",
+                mealPreference: "Veg",
+                journeyDate: "2023-12-25",
+                coPassengers: [
+                    {
+                        name: "Jane Doe",
+                        age: 25,
+                        boardingPoint: "Mumbai Central",
+                        dropPoint: "Pune Station",
+                        mealPreference: "Non-Veg",
+                        seat: "A5"
+                    }
+                ]
+            },
+            // Add more bookings as needed
+        ];
+
+        function renderBookings() {
+            const tableBody = document.getElementById('bookingsTableBody');
+            tableBody.innerHTML = bookings.map(booking => `
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium text-gray-900">${booking.bookingId}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900">${booking.passengerName}</div>
+                        <div class="text-sm text-gray-500">Age: ${booking.age}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900">${booking.phone}</div>
+                        <div class="text-sm text-gray-500">${booking.email}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900">Journey: ${booking.journeyDate}</div>
+                        <div class="text-sm text-gray-500">Seat: ${booking.seat}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                            ${booking.status === 'Confirmed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}">
+                            ${booking.status}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <button onclick="showBookingDetails('${booking.bookingId}')" class="text-blue-600 hover:text-blue-900 mr-3">View</button>
+                        <button class="text-red-600 hover:text-red-900">Cancel</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function showBookingDetails(bookingId) {
+            const booking = bookings.find(b => b.bookingId === bookingId);
+            const modal = document.getElementById('bookingModal');
+            const modalContent = document.getElementById('modalContent');
+            
+            modalContent.innerHTML = `
+                <div class="space-y-6">
+                    <div class="border-b pb-4">
+                        <h3 class="text-lg font-semibold mb-4">Primary Passenger</h3>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <p class="text-sm text-gray-500">Name</p>
+                                <p class="text-sm font-medium">${booking.passengerName}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Age</p>
+                                <p class="text-sm font-medium">${booking.age}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Phone</p>
+                                <p class="text-sm font-medium">${booking.phone}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Email</p>
+                                <p class="text-sm font-medium">${booking.email}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="border-b pb-4">
+                        <h3 class="text-lg font-semibold mb-4">Journey Details</h3>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <p class="text-sm text-gray-500">Boarding Point</p>
+                                <p class="text-sm font-medium">${booking.boardingPoint}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Drop Point</p>
+                                <p class="text-sm font-medium">${booking.dropPoint}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Seat Number</p>
+                                <p class="text-sm font-medium">${booking.seat}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Meal Preference</p>
+                                <p class="text-sm font-medium">${booking.mealPreference}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-lg font-semibold mb-4">Co-Passengers</h3>
+                        ${booking.coPassengers.map(cp => `
+                            <div class="bg-gray-50 p-4 rounded-lg mb-4">
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <p class="text-sm text-gray-500">Name</p>
+                                        <p class="text-sm font-medium">${cp.name}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-500">Age</p>
+                                        <p class="text-sm font-medium">${cp.age}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-500">Boarding Point</p>
+                                        <p class="text-sm font-medium">${booking.boardingPoint}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-500">Drop Point</p>
+                                        <p class="text-sm font-medium">${booking.dropPoint}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-500">Seat</p>
+                                        <p class="text-sm font-medium">${cp.seat}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-500">Meal Preference</p>
+                                        <p class="text-sm font-medium">${cp.mealPreference}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            
+            modal.style.display = 'block';
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('bookingModal');
+            modal.style.display = 'none';
+        }
+
+        // Initial render
+        renderBookings();
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('bookingModal');
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+    </script>
+</body>
+</html>
